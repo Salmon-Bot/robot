@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <springProperty scope="context" name="spring.application.name" source="spring.application.name"/>
+    <!-- 日志最大的历史 30天 -->
+    <property name="maxHistory" value="30"/>
+
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy/MM/dd-HH:mm:ss.SSS} %level [%thread] [%X{logId}] %X{REQID} %class:%line>>%msg%n"/>
+    <appender name="file"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>app.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 按天回滚 daily -->
+            <fileNamePattern>app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="httplog"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>http.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <FileNamePattern>http.%i.log</FileNamePattern>
+            <MinIndex>1</MinIndex>
+            <MaxIndex>21</MaxIndex>
+        </rollingPolicy>
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+
+    <appender name="sqllog"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>sql.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <FileNamePattern>sql.%i.log</FileNamePattern>
+            <MinIndex>1</MinIndex>
+            <MaxIndex>100</MaxIndex>
+        </rollingPolicy>
+
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>20MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoder 默认配置为PatternLayoutEncoder -->
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.hibernate.SQL" level="INFO" additivity="false">
+        <appender-ref ref="sqllog"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="feign" level="INFO" additivity="false">
+        <appender-ref ref="httplog"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+
+    <logger name="com.guohuai" level="INFO" additivity="false">
+        <appender-ref ref="file"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
