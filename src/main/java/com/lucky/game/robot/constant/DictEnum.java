@@ -202,6 +202,10 @@ public enum DictEnum {
     OKEX_MARKET_PERIOD_1D("1day", "一天"),
     OKEX_MARKET_PERIOD_3D("3day", "三天"),
     OKEX_MARKET_PERIOD_1W("1week", "一周"),
+
+    HTTP_GET("GET","GET"),
+    HTTP_POST("POST","POST"),
+
     ;
 
     public static List<String> filledOrderStates = new ArrayList<>();
