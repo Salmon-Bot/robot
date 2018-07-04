@@ -2,6 +2,8 @@ package com.lucky.game.robot.fcoin.vo;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * conan
  * 2018/7/3 下午5:00
@@ -30,17 +32,17 @@ public class FCoinOrderDetailVo {
 
     private String side;
 
-    private String price;
+    private BigDecimal price;
 
-    private String amount;
+    private BigDecimal amount;
 
     private String state;
 
     private String executedValue;
 
-    private String fillFees;
+    private BigDecimal fillFees;
 
-    private String filledAmount;
+    private BigDecimal filledAmount;
 
     private String createAt;
 

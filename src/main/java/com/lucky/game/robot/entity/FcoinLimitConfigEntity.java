@@ -39,22 +39,15 @@ public class FcoinLimitConfigEntity extends UUID{
      * 卖单浮动比例,不填默认最新价
      */
     private BigDecimal sellFluctuate;
-
-    /**
-     * 买单/卖单 buy-limit/sell-limit
-     */
-    private String type;
-
-
     /**
      * 挂单时实时价格
      */
     private BigDecimal realPrice;
 
     /**
-     * 挂单总金额
+     * 挂单数量
      */
-    private BigDecimal totalAmount;
+    private BigDecimal amount;
 
     /**
      * zb/hb/fcoin
@@ -71,7 +64,6 @@ public class FcoinLimitConfigEntity extends UUID{
      * 启用open/停用stop
      */
     private String status;
-
     /**
      * no:未删除/yes:已删除
      */

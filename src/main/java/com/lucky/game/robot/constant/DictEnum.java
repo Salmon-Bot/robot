@@ -168,6 +168,7 @@ public enum DictEnum {
 
     MARKET_TYPE_HB("hb","火币"),
     MARKET_TYPE_ZB("zb","中币"),
+    MARKET_TYPE_FCOIN("fcoin","fcoin"),
 
     ZB_ORDER_TRADE_TYPE_SELL("0","卖"),
     ZB_ORDER_TRADE_TYPE_BUY("1","买"),
@@ -206,6 +207,16 @@ public enum DictEnum {
     HTTP_GET("GET","GET"),
     HTTP_POST("POST","POST"),
 
+    FCOIN_ORDER_TRADE_TYPE_SELL("sell","卖"),
+    FCOIN_ORDER_TRADE_TYPE_BUY("buy","买"),
+
+
+    FCOIN_ORDER_DETAIL_STATE_SUBMITTED("submitted", "已提交"),
+    FCOIN_ORDER_DETAIL_STATE_PARTIAL_FILLED("partial_filled", "部分成交"),
+    FCOIN_ORDER_DETAIL_STATE_PARTIAL_CANCELED("partial_canceled", "部分成交撤销"),
+    FCOIN_ORDER_DETAIL_STATE_FILLED("filled", "完全成交"),
+    FCOIN_ORDER_DETAIL_STATE_CANCELED("canceled", "已撤销"),
+    FCOIN_ORDER_DETAIL_STATE_PENDING_CANCELED("pending_cancel", "撤销已提交"),
     ;
 
     public static List<String> filledOrderStates = new ArrayList<>();

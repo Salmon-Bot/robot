@@ -8,7 +8,7 @@ public class Symbol {
     private String baseCurrency;
     private String quoteCurrency;
     private String symbol;
-    private String priceDecimal;
-    private String amountDecimal;
+    private Integer priceDecimal;
+    private Integer amountDecimal;
 
 }

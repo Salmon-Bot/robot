@@ -1,9 +1,6 @@
 package com.lucky.game.robot.schedule;
 
-import com.lucky.game.robot.biz.DelteTransBiz;
-import com.lucky.game.robot.biz.TransBiz;
-import com.lucky.game.robot.biz.HbMarketMonitorBiz;
-import com.lucky.game.robot.biz.ShuffleBiz;
+import com.lucky.game.robot.biz.*;
 import com.lucky.game.robot.market.HuobiApi;
 import com.lucky.game.robot.vo.huobi.SymBolsDetailVo;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +35,9 @@ public class MonitorSchedule {
 
     @Autowired
     private ShuffleBiz shuffleBiz;
+
+    @Autowired
+    private FcoinTransBiz fcoinTransBiz;
 
     @Value("${is.schedule:true}")
     private boolean isSchedule;
@@ -269,6 +269,26 @@ public class MonitorSchedule {
         }
     }
 
+
+    /**
+     * 检查Fcoin自动交易单(切日志方法已check开头)
+     */
+    @Scheduled(cron = "${cron.option[check.fcoin.auto.trade]:0/10 * * * * ?}")
+    public void chcekFcoinTrade() {
+        if (isSchedule) {
+        fcoinTransBiz.checkToTrade();
+        }
+    }
+
+    /**
+     * 检查Fcoin自动交易单(切日志方法已check开头)
+     */
+    @Scheduled(cron = "${cron.option[check.fcoin.order.status]:0/30 * * * * ?}")
+    public void checkOrderStatus() {
+        if (isSchedule) {
+        fcoinTransBiz.checkOrderStatus();
+        }
+    }
 
     /**
      * 将一个list均分成n个list,主要通过偏移量来实现的

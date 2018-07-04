@@ -55,4 +55,6 @@ public interface OrderService {
     BigDecimal findLimitBetaSellTotalAmount(String userId, String model, String hbState, String zbState, Date startTime, Date endTime);
 
     OrderEntity findByBuyOrderId(String buyOrderId);
+
+    OrderEntity findLastByConfigId(String configId);
 }

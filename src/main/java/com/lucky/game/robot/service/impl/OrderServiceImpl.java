@@ -124,4 +124,9 @@ public class OrderServiceImpl implements OrderService {
     public OrderEntity findByBuyOrderId(String buyOrderId) {
         return orderDao.findByBuyOrderId(buyOrderId);
     }
+
+    @Override
+    public OrderEntity findLastByConfigId(String configId) {
+        return orderDao.findLastByConfigId(configId);
+    }
 }

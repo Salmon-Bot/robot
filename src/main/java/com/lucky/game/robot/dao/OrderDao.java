@@ -95,6 +95,10 @@ public interface OrderDao extends JpaRepository<OrderEntity, String>, JpaSpecifi
             "and model=?2 and type = 'buy-limit' and (state = 'sell' or state=4 ) \n" +
             "and updateTime >= ?5 and updateTime <= ?6)", nativeQuery = true)
     BigDecimal findLimitBetaSellTotalAmount(String userId, String model, String hbState, String zbState, Date startTime, Date endTime);
+
+    @Query(value = "select * from T_ORDER  where symbolTradeConfigId  = ?1  ORDER BY createTime DESC limit 1", nativeQuery = true)
+    OrderEntity findLastByConfigId(String configId);
+
 }
 
 

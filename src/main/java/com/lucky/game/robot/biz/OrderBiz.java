@@ -4,16 +4,18 @@ import com.lucky.game.core.constant.ResponseData;
 import com.lucky.game.core.util.DateUtils;
 import com.lucky.game.robot.constant.DictEnum;
 import com.lucky.game.robot.constant.ErrorEnum;
-import com.lucky.game.robot.vo.OrderVo;
 import com.lucky.game.robot.dto.client.OrderDto;
 import com.lucky.game.robot.dto.huobi.HuobiBaseDto;
 import com.lucky.game.robot.dto.zb.ZbOrderDetailDto;
 import com.lucky.game.robot.entity.AccountEntity;
 import com.lucky.game.robot.entity.OrderEntity;
 import com.lucky.game.robot.exception.BizException;
+import com.lucky.game.robot.fcoin.FCoinApi;
+import com.lucky.game.robot.fcoin.vo.FCoinOrderDetailVo;
 import com.lucky.game.robot.huobi.response.OrdersDetail;
 import com.lucky.game.robot.market.HuobiApi;
 import com.lucky.game.robot.service.OrderService;
+import com.lucky.game.robot.vo.OrderVo;
 import com.lucky.game.robot.vo.StatisticsVo;
 import com.lucky.game.robot.vo.huobi.MarketInfoVo;
 import com.lucky.game.robot.zb.api.ZbApi;
@@ -58,6 +60,9 @@ public class OrderBiz {
 
     @Autowired
     private AccountBiz accountBiz;
+
+    @Autowired
+    private FCoinApi fCoinApi;
 
 
     /**
@@ -474,7 +479,7 @@ public class OrderBiz {
         states.add(DictEnum.ORDER_DETAIL_STATE_SUBMITTED.getCode());
         states.add(DictEnum.ORDER_DETAIL_STATE_PARTIAL_FILLED.getCode());
         states.add(DictEnum.ORDER_DETAIL_STATE_FILLED.getCode());
-        return  orderService.findNofinishDelteByMarket(DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode(),DictEnum.MARKET_TYPE_HB.getCode(),DictEnum.IS_FINISH_NO.getCode(),states);
+        return orderService.findNofinishDelteByMarket(DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode(), DictEnum.MARKET_TYPE_HB.getCode(), DictEnum.IS_FINISH_NO.getCode(), states);
     }
 
     /**
@@ -486,7 +491,7 @@ public class OrderBiz {
         states.add(DictEnum.ORDER_DETAIL_STATE_SUBMITTING.getCode());
         states.add(DictEnum.ORDER_DETAIL_STATE_SUBMITTED.getCode());
         states.add(DictEnum.ORDER_DETAIL_STATE_PARTIAL_FILLED.getCode());
-        return  orderService.findNofinishDelteByMarket(DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode(),DictEnum.MARKET_TYPE_HB.getCode(),DictEnum.IS_FINISH_YES.getCode(),states);
+        return orderService.findNofinishDelteByMarket(DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode(), DictEnum.MARKET_TYPE_HB.getCode(), DictEnum.IS_FINISH_YES.getCode(), states);
     }
 
     /**
@@ -523,6 +528,19 @@ public class OrderBiz {
 
 
     /**
+     * 查询fcoin未完成订单
+     */
+    public List<OrderEntity> findFCoinNotFinishOrder() {
+        List<String> states = new ArrayList<>();
+        states.add(DictEnum.FCOIN_ORDER_DETAIL_STATE_SUBMITTED.getCode());
+        states.add(DictEnum.FCOIN_ORDER_DETAIL_STATE_PARTIAL_FILLED.getCode());
+        return orderService.findByMarket(DictEnum.ORDER_MODEL_LIMIT.getCode(),DictEnum.MARKET_TYPE_FCOIN.getCode(),states);
+    }
+
+
+
+
+    /**
      * 查询limit/betaLimit 所有未完成的买单
      */
     public List<OrderEntity> findNoFillLimit() {
@@ -535,6 +553,43 @@ public class OrderBiz {
         allList.addAll(buyOrderList);
         allList.addAll(saleOrderList);
         return allList;
+    }
+
+    /**
+     * 查询指定配置的最新一条订单记录
+     */
+    public OrderEntity findLastByConfigId(String configId) {
+        return orderService.findLastByConfigId(configId);
+    }
+
+
+    /**
+     * 保存fcoin下单记录
+     */
+    public OrderEntity saveFcoinOrder(String orderId, String userId, String configId,AccountEntity account) {
+        FCoinOrderDetailVo detailVo = fCoinApi.getDetail(orderId,account);
+        AccountEntity accountEntity = accountBiz.getByUserIdAndType(userId, DictEnum.MARKET_TYPE_FCOIN.getCode());
+        OrderEntity orderEntity = orderService.findByOrderId(orderId);
+        if (orderEntity == null) {
+            orderEntity = new OrderEntity();
+            orderEntity.setCreateTime(DateUtils.getSqlCurrentDate());
+        }
+        orderEntity.setUserId(userId);
+        orderEntity.setSymbol(detailVo.getSymbol());
+        orderEntity.setAccountId(accountEntity.getAccountId());
+        orderEntity.setAmount(detailVo.getAmount());
+        orderEntity.setFieldAmount(detailVo.getFilledAmount());
+        orderEntity.setMarketType(DictEnum.MARKET_TYPE_FCOIN.getCode());
+        orderEntity.setFieldFees(detailVo.getFillFees());
+        orderEntity.setModel(DictEnum.ORDER_MODEL_LIMIT.getCode());
+        orderEntity.setType(detailVo.getSide());
+        orderEntity.setOrderId(detailVo.getId());
+        orderEntity.setPrice(detailVo.getPrice());
+        orderEntity.setState(detailVo.getState());
+        orderEntity.setSource(detailVo.getSource());
+        orderEntity.setSymbolTradeConfigId(configId);
+        orderEntity.setTotalToUsdt(getTotalToUsdt(detailVo.getSymbol(), detailVo.getPrice(), detailVo.getAmount()));
+        return this.saveOrder(orderEntity);
     }
 
 
