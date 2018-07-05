@@ -588,7 +588,7 @@ public class OrderBiz {
         orderEntity.setState(detailVo.getState());
         orderEntity.setSource(detailVo.getSource());
         orderEntity.setSymbolTradeConfigId(configId);
-        orderEntity.setTotalToUsdt(getTotalToUsdt(detailVo.getSymbol(), detailVo.getPrice(), detailVo.getAmount()));
+//        orderEntity.setTotalToUsdt(getTotalToUsdt(detailVo.getSymbol(), detailVo.getPrice(), detailVo.getAmount()));
         return this.saveOrder(orderEntity);
     }
 

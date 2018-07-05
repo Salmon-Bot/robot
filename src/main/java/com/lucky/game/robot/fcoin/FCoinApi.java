@@ -85,7 +85,6 @@ public class FCoinApi {
                 vo.setAmountDecimal(result.getInteger("amount_decimal"));
                 symbolList.add(vo);
             }
-            log.info("result={}", symbolList);
         } catch (HttpException | IOException e) {
             e.printStackTrace();
         }

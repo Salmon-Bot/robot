@@ -61,6 +61,23 @@ public class FcoinLimitConfigEntity extends UUID{
     private Integer waitTime;
 
     /**
+     * 价格波动倍数
+     */
+    private BigDecimal priceMultiple;
+
+
+    /**
+     * 价格斜率
+     */
+    private BigDecimal priveSlope;
+
+    /**
+     * 数量波动倍数
+     */
+    private BigDecimal amountMultiple;
+
+
+    /**
      * 启用open/停用stop
      */
     private String status;
