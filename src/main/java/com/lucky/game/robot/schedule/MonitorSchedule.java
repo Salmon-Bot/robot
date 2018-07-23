@@ -39,6 +39,9 @@ public class MonitorSchedule {
     @Autowired
     private FcoinTransBiz fcoinTransBiz;
 
+    @Autowired
+    private KlineInfoBiz klineInfoBiz;
+
     @Value("${is.schedule:true}")
     private boolean isSchedule;
 
@@ -289,6 +292,18 @@ public class MonitorSchedule {
         fcoinTransBiz.checkOrderStatus();
         }
     }
+
+
+    /**
+     * 保存小时k线数据
+     */
+    @Scheduled(cron = "${cron.option[save.one.hour.kline]:0 0/1 * * * ?}")
+    public void saveOneHourKline() {
+        if (isSchedule) {
+            klineInfoBiz.saveOneHourKline();
+        }
+    }
+
 
     /**
      * 将一个list均分成n个list,主要通过偏移量来实现的

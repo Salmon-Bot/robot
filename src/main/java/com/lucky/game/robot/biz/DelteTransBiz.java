@@ -1,9 +1,8 @@
 package com.lucky.game.robot.biz;
 
 import com.lucky.game.robot.constant.DictEnum;
-import com.lucky.game.robot.dto.huobi.DepthDto;
-import com.lucky.game.robot.bian.OkexApi;
 import com.lucky.game.robot.dto.huobi.CreateOrderDto;
+import com.lucky.game.robot.dto.huobi.DepthDto;
 import com.lucky.game.robot.dto.huobi.MaInfoDto;
 import com.lucky.game.robot.entity.LimitDelteConfigEntity;
 import com.lucky.game.robot.entity.OrderEntity;
@@ -55,15 +54,23 @@ public class DelteTransBiz {
     @Autowired
     private MarketBiz marketBiz;
 
-    @Autowired
-    private OkexApi okexApi;
-
+    /**
+     * 间隔比率
+     */
     @Value("${delte.rate:0.005}")
     private Double delteRate;
 
+    /**
+     * 行情重试次数
+     */
     @Value("${retry.time:3}")
     private Integer retryTime;
 
+    /**
+     * 止损率
+     */
+    @Value("${retry.time:0.05}")
+    private BigDecimal delteStopRate;
     /**
      * 更新已完成但是状态还未同步的detle订单
      */
@@ -146,33 +153,23 @@ public class DelteTransBiz {
                         OrderEntity buyOrder = orderBiz.findHbDelteBuyOrder(delte.getUserId(), delte.getSymbol(), delte.getOid(), DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode());
                         //不存在买单
                         if (buyOrder == null) {
-                            OrderEntity saleOrder = orderBiz.findHbDelteSellOrder(delte.getUserId(), delte.getSymbol(), delte.getOid(), DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode());
-                            //存在卖单,先处理原始卖单
-                            if (saleOrder != null) {
-                                hbCreateDelteLimitBuyOrderWithSaleOrder(saleOrder, null);
-                            }
                             //创建买单
                             hbCreateDelteLimitBuyOrderWithDelte(delte);
                         } else {
                             log.info("已存在买单,orderId={}", buyOrder.getOrderId());
                         }
+                    } else if (maUp != null) {
+                        //下降
+                        OrderEntity buyOrder = orderBiz.findHbDelteBuyOrder(delte.getUserId(), delte.getSymbol(), delte.getOid(), DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode());
+                        //存在买单
+                        if (buyOrder != null) {
+                            MarketInfoVo info = huobiApi.getMarketInfo(DictEnum.MARKET_PERIOD_1MIN.getCode(), 1, buyOrder.getSymbol());
+                            //订单价格*(1-止损率)>=最新价格,操作止损
+                           if(buyOrder.getPrice().multiply(new BigDecimal(1).subtract(delteStopRate)).compareTo(info.getData().get(0).getClose()) >= 0){
+                               hbCreateLimitSellOrderWithBuyOrder(buyOrder, null);
+                           }
+                        }
                     }
-                    //下降不做，亏损率高
-//                    else if (maUp != null) {
-//                        OrderEntity saleOrder = orderBiz.findHbDelteSellOrder(delte.getUserId(), delte.getSymbol(), delte.getOid(), DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode());
-//                        //不存在卖单
-//                        if (saleOrder == null) {
-//                            OrderEntity buyOrder = orderBiz.findHbDelteBuyOrder(delte.getUserId(), delte.getSymbol(), delte.getOid(), DictEnum.ORDER_MODEL_LIMIT_DELTE.getCode());
-//                            //存在买单,先处理买单
-//                            if (buyOrder != null) {
-//                                hbCreateLimitSellOrderWithBuyOrder(buyOrder, null);
-//                            }
-//                            //创建卖单
-//                            hbCreateLimitSellOrderWithDelte(delte);
-//                        } else {
-//                            log.info("已存在卖单,orderId={}", saleOrder.getOrderId());
-//                        }
-//                    }
                     Thread.sleep(2000);
                 } catch (Exception e) {
                     log.error("处理delte订单失败,delte={},e={}", delte, e);
@@ -181,14 +178,13 @@ public class DelteTransBiz {
         }
     }
 
-
     /**
      * 计算ma 5min 趋势是否构成买入卖出点
      */
     public Boolean calcMaInfo(String symbol, String period) {
         Boolean maUp = null;
 
-        MaInfoDto ma = reTryGetMaInfo(symbol, period,retryTime);
+        MaInfoDto ma = reTryGetMaInfo(symbol, period, retryTime);
         //up
         if (ma.getMa7Middle().compareTo(ma.getMa30Middle()) > 0 && ma.getRate().compareTo(delteRate) <= 0) {
             log.info("delte{}趋势结果上升,symbol={},ma={}", period, symbol, ma);
@@ -209,7 +205,7 @@ public class DelteTransBiz {
     public Boolean calcMaToWin(String symbol, String orderType) {
         boolean toDo = false;
 
-        MaInfoDto ma = reTryGetMaInfo(symbol, DictEnum.MARKET_PERIOD_15MIN.getCode(),retryTime);
+        MaInfoDto ma = reTryGetMaInfo(symbol, DictEnum.MARKET_PERIOD_15MIN.getCode(), retryTime);
         //买单,判断上涨趋势减慢
         if (DictEnum.ORDER_TYPE_BUY_LIMIT.getCode().equals(orderType)) {
             //down
@@ -241,7 +237,7 @@ public class DelteTransBiz {
                 Thread.sleep(1000);
                 --retryTime;
                 maInfoDto = reTryGetMaInfo(symbol, period, retryTime);
-            } else if(maInfoDto == null && retryTime <= 0){
+            } else if (maInfoDto == null && retryTime <= 0) {
                 maInfoDto = new MaInfoDto();
             }
         } catch (InterruptedException e) {

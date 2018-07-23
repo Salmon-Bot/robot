@@ -35,6 +35,11 @@ public class KlineInfoEntity  extends UUID {
     private String symbol;
 
     /**
+     * k线类型
+     */
+    private String period;
+
+    /**
      * 成交量
      */
     private BigDecimal amount;
