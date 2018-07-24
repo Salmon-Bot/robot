@@ -42,6 +42,9 @@ public class MonitorSchedule {
     @Autowired
     private KlineInfoBiz klineInfoBiz;
 
+    @Autowired
+    private  TrendBizz trendBizz;
+
     @Value("${is.schedule:true}")
     private boolean isSchedule;
 
@@ -301,6 +304,16 @@ public class MonitorSchedule {
     public void saveOneHourKline() {
         if (isSchedule) {
             klineInfoBiz.saveOneHourKline();
+        }
+    }
+
+    /**
+     * 1小时kdj数据计算
+     */
+    @Scheduled(cron = "${cron.option[save.one.hour.kline]:5 0 0/1 * * ?}")
+    public void oneHoursKdj() {
+        if (isSchedule) {
+            trendBizz.oneHoursKdj();
         }
     }
 

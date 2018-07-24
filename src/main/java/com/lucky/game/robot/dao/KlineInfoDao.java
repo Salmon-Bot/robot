@@ -12,4 +12,6 @@ public interface KlineInfoDao  extends JpaRepository<KlineInfoEntity, String>, J
 
     KlineInfoEntity findByKlineId(String klineId);
 
+    KlineInfoEntity findByKlineIdAndSymbol(String klineId,String symbol);
+
 }

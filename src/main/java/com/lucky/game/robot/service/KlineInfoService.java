@@ -11,4 +11,6 @@ public interface KlineInfoService {
     void insert(KlineInfoEntity entity);
 
     KlineInfoEntity findByKlineId(String klineId);
+
+    KlineInfoEntity findByKlineIdAndSymbol(String klineId,String symbol);
 }

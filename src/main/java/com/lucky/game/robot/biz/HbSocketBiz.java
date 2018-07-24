@@ -58,7 +58,7 @@ public class HbSocketBiz {
                 klineInfoBiz.syncKlineInsert(klineInfo);
                 for (UserEntity user : userList) {
                     lastKlineId = Long.valueOf(klineInfo.getKlineId()) - 60;
-                    KlineInfoEntity oldKline = klineInfoBiz.findByKlineId(String.valueOf(lastKlineId));
+                    KlineInfoEntity oldKline = klineInfoBiz.findByKlineIdAndSymbol(String.valueOf(lastKlineId),klineInfo.getSymbol());
                     MarketDetailVo lastMarketDetail = new MarketDetailVo();
                     BeanUtils.copyProperties(oldKline,lastMarketDetail);
                     // 1min monitor

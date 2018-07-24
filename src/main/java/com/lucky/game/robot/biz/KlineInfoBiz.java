@@ -31,7 +31,7 @@ public class KlineInfoBiz {
     private HuobiApi huobiApi;
 
     @Value("${kline.symbols:eosusdt}")
-    private String klineSymbols;
+    public String klineSymbols;
 
 
     /**
@@ -64,7 +64,7 @@ public class KlineInfoBiz {
         MarketInfoVo marketInfoVo = huobiApi.getMarketInfo(period, size, symbol);
         List<MarketDetailVo> vos = marketInfoVo.getData();
         for (MarketDetailVo vo : vos) {
-            KlineInfoEntity old = klineInfoService.findByKlineId(vo.getId());
+            KlineInfoEntity old = klineInfoService.findByKlineIdAndSymbol(vo.getId(),symbol);
             if (old == null) {
                 KlineInfoEntity entity = new KlineInfoEntity();
                 BeanUtils.copyProperties(vo, entity);
@@ -80,8 +80,8 @@ public class KlineInfoBiz {
     /**
      * 获取指定行情的k线记录
      */
-    public KlineInfoEntity findByKlineId(String klineId) {
-        KlineInfoEntity klineInfoEntity = klineInfoService.findByKlineId(klineId);
+    public KlineInfoEntity findByKlineIdAndSymbol(String klineId,String symbol) {
+        KlineInfoEntity klineInfoEntity = klineInfoService.findByKlineIdAndSymbol(klineId,symbol);
         if (klineInfoEntity == null) {
             throw new BizException("未找到指定id的k线,klineId=" + klineId);
         }

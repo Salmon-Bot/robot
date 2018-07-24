@@ -25,4 +25,9 @@ public class KlineInfoServiceImpl implements KlineInfoService{
     public KlineInfoEntity findByKlineId(String klineId) {
         return klineInfoDao.findByKlineId(klineId);
     }
+
+    @Override
+    public KlineInfoEntity findByKlineIdAndSymbol(String klineId, String symbol) {
+        return klineInfoDao.findByKlineIdAndSymbol(klineId,symbol);
+    }
 }
