@@ -310,7 +310,7 @@ public class MonitorSchedule {
     /**
      * 1小时kdj数据计算
      */
-    @Scheduled(cron = "${cron.option[save.one.hour.kline]:5 0 0/1 * * ?}")
+    @Scheduled(cron = "${cron.option[one.hour.kdj]:5 0 0/1 * * ?}")
     public void oneHoursKdj() {
         if (isSchedule) {
             trendBizz.oneHoursKdj();

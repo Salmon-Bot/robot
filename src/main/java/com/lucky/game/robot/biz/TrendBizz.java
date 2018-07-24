@@ -35,7 +35,7 @@ public class TrendBizz {
     private final static String KDJ_J = "KDJ_J_";
 
     public void oneHoursKdj(){
-        String[] symbols = klineInfoBiz.klineSymbols.split(",");
+        String[] symbols = "eosusdt,ethusdt,btcusdt".split(",");
         for (String symbol : symbols){
             kdj(symbol);
         }
