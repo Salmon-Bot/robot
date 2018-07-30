@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author conan
@@ -40,6 +41,7 @@ public class AccountBiz {
      */
     public BalanceVo getUserBaseCurrencyBalance(String userId) {
         BalanceVo vo = new BalanceVo();
+        List<BalanceBean> balanceBeanList = new ArrayList<>();
         HuobiBaseDto dto = new HuobiBaseDto();
         dto.setUserId(userId);
         setHuobiApiKey(dto);
@@ -48,7 +50,7 @@ public class AccountBiz {
             Accounts accounts = this.getHuobiSpotAccounts(dto);
             //标记hb余额是否设置完成
             int hbFinish = 0;
-            List<BalanceBean> balanceBeanList = this.getHuobiAccountBalance(dto, accounts);
+             balanceBeanList = this.getHuobiAccountBalance(dto, accounts);
             for (BalanceBean balanceBean : balanceBeanList) {
                 //设置完成
                 if (hbFinish >= 6) {
@@ -100,7 +102,9 @@ public class AccountBiz {
                 }
             }
         }
-        log.info("账号余额,vo={}", vo);
+        //统计余额大于1的币种
+        List<BalanceBean> balanceList = balanceBeanList.stream().filter(balanceBean -> new BigDecimal(balanceBean.getBalance()).compareTo(BigDecimal.ONE) >= 0).collect(Collectors.toList());
+        log.info("账号余额,vo={},balanceList={}", vo,balanceList);
         return vo;
     }
 

@@ -1,5 +1,6 @@
 package com.lucky.game.robot.controller;
 
+import com.lucky.game.core.common.StringUtil;
 import com.lucky.game.core.component.ext.web.BaseController;
 import com.lucky.game.core.constant.ResponseData;
 import com.lucky.game.robot.dto.client.UserLoginDto;
@@ -73,8 +74,10 @@ public class UserController extends BaseController {
     @RequestMapping(value = "/getBalance", method = RequestMethod.GET)
     @ApiOperation(value = "账户余额", notes = "", httpMethod = "GET")
     @ResponseBody
-    public ResponseData getBalance() {
-        String userId = this.getLoginUser();
+    public ResponseData getBalance(@RequestParam("userId") String userId) {
+        if(StringUtil.isEmpty(userId)){
+            userId = this.getLoginUser();
+        }
         BalanceVo vo = accountBiz.getUserBaseCurrencyBalance(userId);
         return ResponseData.success(vo);
     }
